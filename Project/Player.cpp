@@ -8,7 +8,10 @@ m_Mesh(),
 m_Pos(0.0f,0.0f,0.0f),
 m_RotZ(0.0f),
 m_Speed(1),
-m_RotSpeed(1){
+m_RotSpeed(1),
+m_ShotMesh(),
+m_ShotArray(),
+m_ShotWait(){
 }
 
 /**
@@ -25,6 +28,16 @@ bool CPlayer::Load(void){
 	if (!m_Mesh.Load("player.mom"))
 		return false;
 
+	//íeÇÃÉÅÉbÉVÉÖ
+	if (!m_ShotMesh.Load("pshot.mom"))
+	{
+		return false;
+	}
+	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+	{
+		m_ShotArray[i].SetMesh(&m_ShotMesh);
+	}
+
 	return true;
 }
 
@@ -34,6 +47,11 @@ bool CPlayer::Load(void){
 void CPlayer::Initialize(void){
 	m_Pos = Vector3(0.0f, 0.0f, -FIELD_HALF_Z + 2.0f);
 	m_RotZ = 0;
+
+	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+	{
+		m_ShotArray[i].Initialize();
+	}
 }
 
 /**
@@ -43,12 +61,12 @@ void CPlayer::Update(void){
 	//âÒì]ï˚å¸
 	float roll = 0;
 	float m_Speed = PLAYER_SPEED;
-	float m_RotSpeed = MOF_ToRadian(10);
+	float RotSpeed = MOF_ToRadian(10);
 	//ÉLÅ[É{Å[ÉhÇ≈ÇÃà⁄ìÆ
 	if (g_pInput->IsKeyHold(MOFKEY_SPACE))
 	{
 		m_Speed *= 3;
-		m_RotSpeed *= 10;
+		//RotSpeed *= 4;
 	}
 	if (g_pInput->IsKeyHold(MOFKEY_LEFT))
 	{
@@ -69,7 +87,7 @@ void CPlayer::Update(void){
 		m_Pos.z = max(m_Pos.z - m_Speed, -FIELD_HALF_Z);
 	}
 	//âÒì]
-	float RotSpeed = MOF_ToRadian(10);
+	//float RotSpeed = MOF_ToRadian(10);
 	if (roll == 0)
 	{
 		RotSpeed = min(abs(m_RotZ) * 0.1f, RotSpeed);
@@ -79,6 +97,36 @@ void CPlayer::Update(void){
 		m_RotZ += roll;
 	}
 	m_RotZ -= copysignf(min(RotSpeed, abs(m_RotZ)), m_RotZ);
+
+	//íeÇÃî≠éÀ
+	if (m_ShotWait <= 0)
+	{
+		if (g_pInput->IsKeyHold(MOFKEY_LSHIFT))
+		{
+			for (int cnt = 0; cnt < 2; cnt++)
+			{
+				for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+				{
+					if (m_ShotArray[i].GetShow()) { continue; }
+					CVector3 ShotPos(0.4f * (cnt * 2 - 1), 0, 0);
+					ShotPos.RotationZ(m_RotZ);
+					ShotPos += m_Pos;
+					m_ShotWait = PLAYERSHOT_WAIT;
+					m_ShotArray[i].Fire(ShotPos);
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		m_ShotWait--;
+	}
+	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+	{
+		m_ShotArray[i].Update();
+	}
+
 }
 
 /**
@@ -91,6 +139,12 @@ void CPlayer::Render(void){
 	matworld.SetTranslation(m_Pos);
 	//ÉÅÉbÉVÉÖÇÃï`âÊ
 	m_Mesh.Render(matworld);
+
+	//íeÇÃï`âÊ
+	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+	{
+		m_ShotArray[i].Render();
+	}
 }
 
 /**
@@ -107,4 +161,5 @@ void CPlayer::RenderDebugText(void){
  */
 void CPlayer::Release(void){
 	m_Mesh.Release();
+	m_ShotMesh.Release();
 }

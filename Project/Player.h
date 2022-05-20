@@ -1,9 +1,16 @@
 #pragma once
 
 #include "GameDefine.h"
+#include "PlayerShot.h"
 
 // ˆÚ“®‘¬“x
 #define PLAYER_SPEED		(0.1f)
+
+//’e‚Ì”­ŽËŒÀ“x
+#define PLAYERSHOT_COUNT (40)
+
+//’e‚Ì”­ŽËŠÔŠu
+#define PLAYERSHOT_WAIT (5)
 
 class CPlayer{
 private:
@@ -12,6 +19,9 @@ private:
 	float			m_RotZ;
 	int m_Speed;
 	float m_RotSpeed;
+	CMeshContainer m_ShotMesh;
+	CPlayerShot m_ShotArray[PLAYERSHOT_COUNT];
+	int m_ShotWait;
 public:
 	CPlayer();
 	~CPlayer();
