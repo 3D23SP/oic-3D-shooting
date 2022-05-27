@@ -6,7 +6,10 @@
  */
 CStage::CStage():
 m_BG(),
-m_Scroll(0.0f){
+m_Scroll(0.0f),
+m_pEnemyStart(NULL),
+m_EnemyMesh(),
+m_EnemyNo(0){
 }
 
 /**
@@ -26,14 +29,21 @@ bool CStage::Load(){
 	{
 		return false;
 	}
+	//ステージ内で登場する敵のメッシュを読み込む
+	if (!m_EnemyMesh.Load("enemy.mom"))
+	{
+		return false;
+	}
 	return true;
 }
 
 /**
  * 初期化
  *
+ * 引数
+ * [in] pSt 敵の開始情報配列
  */
-void CStage::Initialize(){
+void CStage::Initialize(ENEMYSTART *pSt){
 	m_BG.m_Angle.x = MOF_MATH_HALFPI;
 	m_BG.m_Angle.y = MOF_MATH_HALFPI;
 	m_BG.m_Scale = Vector3(200, 200, 200);
@@ -45,9 +55,27 @@ void CStage::Initialize(){
 /**
  * 更新
  *
+ * 引数
+ * [in] ene 敵の配列
+ * [in] ecnt 敵の配列の数
  */
-void CStage::Update(){
+void CStage::Update(CEnemy* ene,int ecnt){
 	m_Scroll += SCROLL_SPEED;
+
+	if (m_EnemyNo < m_pEnemyStart->Count && m_Scroll >= m_pEnemyStart->Scroll[m_EnemyNo])
+	{
+		for (int i = 0; i < ecnt; i++)
+		{
+			if (ene[i].GetShow())
+			{
+				continue;
+			}
+			ene[i].SetMesh(&m_EnemyMesh);
+			ene[i].Start(Vector3(m_pEnemyStart->PosX[m_EnemyNo], 0, 0));
+			break;
+		}
+		m_EnemyNo++;
+	}
 }
 
 /**
@@ -79,4 +107,5 @@ void CStage::RenderDebugText(){
  */
 void CStage::Release(){
 	m_BG.Release();
+	m_EnemyMesh.Release();
 }

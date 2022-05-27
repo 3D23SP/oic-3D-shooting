@@ -11,10 +11,13 @@
 #include	"GameApp.h"
 #include "Player.h"
 #include "Stage.h"
+#include "Stage1.h"
 
 CCamera gCamera;
 CDirectionalLight gLight;
 CPlayer gPlayer;
+#define ENEMY_COUNT (20)
+CEnemy gEnemyArray[ENEMY_COUNT];
 bool gbDebug = false;
 CStage gStage;
 
@@ -47,7 +50,12 @@ MofBool CGameApp::Initialize(void){
 	gPlayer.Load();
 	gStage.Load();
 	gPlayer.Initialize();
-	gStage.Initialize();
+	gStage.Initialize(&gStg1EnemyStart);
+
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].Initialize();
+	}
 
 	return TRUE;
 }
@@ -63,7 +71,13 @@ MofBool CGameApp::Update(void){
 	g_pInput->RefreshKey();
 
 	gPlayer.Update();
-	gStage.Update();
+
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].Update();
+	}
+
+	gStage.Update(gEnemyArray,ENEMY_COUNT);
 
 	if (g_pInput->IsKeyPush(MOFKEY_F1))
 	{
@@ -99,6 +113,11 @@ MofBool CGameApp::Render(void){
 	g_pGraphics->SetDepthEnable(TRUE);
 
 	gPlayer.Render();
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gEnemyArray[i].Render();
+	}
+
 	gStage.Render();
 
 	if (gbDebug)
@@ -114,6 +133,11 @@ MofBool CGameApp::Render(void){
 	{
 		gPlayer.RenderDebugText();
 		gStage.RenderDebugText();
+
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].RenderDebugText(i);
+		}
 	}
 
 	// •`‰æ‚ÌI—¹

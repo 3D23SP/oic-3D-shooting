@@ -103,7 +103,7 @@ void CPlayer::Update(void){
 	{
 		if (g_pInput->IsKeyHold(MOFKEY_LSHIFT))
 		{
-			for (int cnt = 0; cnt < 2; cnt++)
+			for (int cnt = 0; cnt < 3; cnt++)
 			{
 				for (int i = 0; i < PLAYERSHOT_COUNT; i++)
 				{
