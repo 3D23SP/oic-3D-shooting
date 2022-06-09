@@ -46,6 +46,7 @@ void CPlayerShot::Update(void){
 	}
 }
 
+
 /**
  * 描画
  */
@@ -57,4 +58,15 @@ void CPlayerShot::Render(void){
 	CMatrix44 wMat;
 	wMat.Translation(m_Pos);
 	m_pMesh->Render(wMat);
+}
+
+/**
+*デバッグ描画
+*/
+void CPlayerShot::RenderDebug(void) {
+	if (!m_bShow)
+	{
+		return;
+	}
+	CGraphicsUtilities::RenderSphere(GetSphere(), Vector4(0, 1, 0, 0, 0.3f));
 }

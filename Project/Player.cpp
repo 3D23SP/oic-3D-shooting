@@ -25,14 +25,10 @@ CPlayer::~CPlayer(){
  */
 bool CPlayer::Load(void){
 	// メッシュの読み込み
-	if (!m_Mesh.Load("player.mom"))
+	m_Mesh.Load("player.mom");
+	m_ShotMesh.Load("pshot.mom");
 		return false;
 
-	//弾のメッシュ
-	if (!m_ShotMesh.Load("pshot.mom"))
-	{
-		return false;
-	}
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
 	{
 		m_ShotArray[i].SetMesh(&m_ShotMesh);
@@ -47,6 +43,8 @@ bool CPlayer::Load(void){
 void CPlayer::Initialize(void){
 	m_Pos = Vector3(0.0f, 0.0f, -FIELD_HALF_Z + 2.0f);
 	m_RotZ = 0;
+	m_SMode = PlayerShotMove::MODE_DOUBLE;
+	m_SubMode = PlayerShotSubMode::MODE_DIRECT
 
 	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
 	{
@@ -128,6 +126,38 @@ void CPlayer::Update(void){
 	}
 
 }
+/*
+*
+*敵の当たり判定
+*
+*/
+void CPlayer::CollisionEnemy(CEnemy & ene) {
+	if (!ene.GetShow())
+	{
+		return;
+	}
+	CSphere ps = GetSphere();
+	CSphere es = ene.GetSphere();
+	if (ps.CollisionSphere(es))
+	{
+		m_bDead = true;
+	}
+	//弾との判定
+	for (int i = 0; i < PLAYERSHOT_COUNT; i++)
+	{
+		if (!m_ShotArray[i].GetShow())
+		{
+			continue;
+		}
+		CSphere ss = m_ShotArray[i].GetSphere();
+		if (ss.CollisionSphere(es))
+		{
+			ene.Damage(1);
+			m_ShotArray[i].SetShow(false);
+			break;
+		}
+	}
+}
 
 /**
  * 描画
@@ -145,6 +175,19 @@ void CPlayer::Render(void){
 	{
 		m_ShotArray[i].Render();
 	}
+}
+
+/**
+*デバッグ描画
+*/
+void CPlayer::RenderDebug(void) {
+	//非表示
+	if (!GetShow())
+	{
+		return;
+	}
+	//当たり判定の表示
+	CGraphicsUtilities::RenderSphere(GetSphere(), Vector4(1, 0, 0, 0, 3.0f));
 }
 
 /**

@@ -22,6 +22,7 @@ m_pMesh(NULL),
 m_Pos(0,0,0),
 m_Rot(0,0,0),
 m_bShow(false),
+m_HP(5),
 m_AnimTime(0){
 }
 
@@ -51,7 +52,23 @@ void CEnemy::Start(const Vector3& p){
 	m_Pos = p;
 	m_Rot = Vector3(0, 0, 0);
 	m_bShow = true;
+	m_HP = 5;
 	m_AnimTime = 0;
+}
+
+/**
+* É_ÉÅÅ[ÉWèàóù
+* 
+* 
+* 
+* 
+*/
+void CEnemy::Damage(int dmg) {
+	m_HP -= dmg;
+	if (m_HP <= 0)
+	{
+		m_bShow = false;
+	}
 }
 
 /**
