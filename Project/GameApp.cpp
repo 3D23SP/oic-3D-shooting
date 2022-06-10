@@ -77,11 +77,29 @@ MofBool CGameApp::Update(void){
 		gEnemyArray[i].Update();
 	}
 
+	//敵との当たり判定
+	for (int i = 0; i < ENEMY_COUNT; i++)
+	{
+		gPlayer.CollisionEnemy(gEnemyArray[i]);
+	}
+
 	gStage.Update(gEnemyArray,ENEMY_COUNT);
 
 	if (g_pInput->IsKeyPush(MOFKEY_F1))
 	{
 		gbDebug = ((gbDebug) ? false : true);
+	}
+
+	//ゲームオーバーでEnter表示
+	if (g_pInput->IsKeyPush(MOFKEY_RETURN) && gPlayer.IsDead())
+	{
+		//ゲーム内オブジェクトの初期化
+		gPlayer.Initialize();
+		gStage.Initialize(&gStg1EnemyStart);
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].Initialize();
+		}
 	}
 
 	float posX = gPlayer.GetPosition().x * 0.4f;
@@ -122,6 +140,13 @@ MofBool CGameApp::Render(void){
 
 	if (gbDebug)
 	{
+		gPlayer.RenderDebug();
+
+		for (int i = 0; i < ENEMY_COUNT; i++)
+		{
+			gEnemyArray[i].RenderDebug();
+		}
+
 		CMatrix44 matworld;
 		matworld.Scaling(FIELD_HALF_X * 2, 1, FIELD_HALF_Z * 2);
 		CGraphicsUtilities::RenderPlane(matworld, Vector4(1, 1, 1, 0.4f));
@@ -138,6 +163,11 @@ MofBool CGameApp::Render(void){
 		{
 			gEnemyArray[i].RenderDebugText(i);
 		}
+	}
+
+	if (gPlayer.IsDead())
+	{
+		CGraphicsUtilities::RenderString(240, 350, MOF_COLOR_RED, "ゲームオーバー : Enterキーでもう一度最初から");
 	}
 
 	// 描画の終了

@@ -52,11 +52,15 @@ void CEnemyShot::Update(){
 		return;
 	}
 	// ‘¬“x‚ğ—˜—p‚µ‚½ˆÚ“®
-	
+	m_Pos += m_Spd;
 	// ‰æ–ÊŠO‚ÅÁ‹
-	
+	float inflate = 1.0f;
+	if (m_Pos.x < -FIELD_HALF_X - inflate || FIELD_HALF_X + inflate < m_Pos.x || m_Pos.z < -FIELD_HALF_Z - inflate || FIELD_HALF_Z + inflate < m_Pos.z)
+	{
+		m_bShow = false;
+	}
 	// ’e‚ğ‰ñ“]
-	
+	m_RotY += MOF_ToRadian(10);
 }
 
 /**
@@ -68,11 +72,13 @@ void CEnemyShot::Render(){
 	{
 		return;
 	}
+	CMatrix44 matWorld;
 	//‰ñ“]‚ğ”½‰f
-	
+	matWorld.RotationY(m_RotY);
 	//À•W‚ğİ’è
-	
+	matWorld.SetTranslation(m_Pos);
 	//•`‰æ
+	m_pMesh->Render(matWorld);
 }
 
 /**
@@ -93,5 +99,12 @@ void CEnemyShot::RenderDebug(void){
  *
  */
 CEnemyShot* CEnemyShot::FindAvailableShot(CEnemyShot* shot,int smax){
+	for (int i = 0; i < smax; i++)
+	{
+		if (!shot[i].GetShow())
+		{
+			return &shot[i];
+		}
+	}
 	return NULL;
 }

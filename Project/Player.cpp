@@ -9,6 +9,7 @@ m_Pos(0.0f,0.0f,0.0f),
 m_RotZ(0.0f),
 m_Speed(1),
 m_RotSpeed(1),
+m_bDead(false),
 m_ShotMesh(),
 m_ShotArray(),
 m_ShotWait(){
@@ -43,6 +44,7 @@ bool CPlayer::Load(void){
 void CPlayer::Initialize(void){
 	m_Pos = Vector3(0.0f, 0.0f, -FIELD_HALF_Z + 2.0f);
 	m_RotZ = 0;
+	m_bDead = false;
 	m_SMode = PlayerShotMove::MODE_DOUBLE;
 	m_SubMode = PlayerShotSubMode::MODE_DIRECT
 
@@ -56,6 +58,10 @@ void CPlayer::Initialize(void){
  * 更新
  */
 void CPlayer::Update(void){
+	if (m_bDead)
+	{
+		return;
+	}
 	//回転方向
 	float roll = 0;
 	float m_Speed = PLAYER_SPEED;
@@ -163,6 +169,10 @@ void CPlayer::CollisionEnemy(CEnemy & ene) {
  * 描画
  */
 void CPlayer::Render(void){
+	if (m_bDead)
+	{
+		return;
+	}
 	//ワールド行列作成
 	CMatrix44 matworld;
 	matworld.RotationZ(m_RotZ);

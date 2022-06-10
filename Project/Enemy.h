@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameDefine.h"
+#include "EnemyShot.h"
 
 class CEnemy{
 private:
@@ -13,17 +14,22 @@ private:
 
 	int                 m_HP;
 
+	int m_ShotWait;
+	int m_ShotWaitSet;
+	Vector3 m_TargetPos;
+
 public:
 	CEnemy();
 	~CEnemy();
 	void Initialize();
 	void Start(const Vector3& p);
-	void Update();
+	void Update(CEnemyShot* shot,int smax);
 	void Render();
 	void RenderDebug();
 	void RenderDebugText(int i);
 	void SetMesh(CMeshContainer* pm){ m_pMesh = pm; }
 	bool GetShow(){ return m_bShow; }
 	void Damage(int dmg);
-	CSphere getSphere() { return CSphere(m_Pos, 0.5f); }
+	CSphere GetSphere() { return CSphere(m_Pos, 0.5f); }
+	void SetTargetPos(const Vector3& t) { m_TargetPos = t; }
 };

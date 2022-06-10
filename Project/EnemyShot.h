@@ -13,7 +13,6 @@ public:
 	CEnemyShot();
 	~CEnemyShot();
 	
-	
 	/**
 	 * ‰Šú‰»
 	 *

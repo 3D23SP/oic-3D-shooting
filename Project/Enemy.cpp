@@ -23,6 +23,8 @@ m_Pos(0,0,0),
 m_Rot(0,0,0),
 m_bShow(false),
 m_HP(5),
+m_ShotWait(0),
+
 m_AnimTime(0){
 }
 
@@ -53,6 +55,9 @@ void CEnemy::Start(const Vector3& p){
 	m_Rot = Vector3(0, 0, 0);
 	m_bShow = true;
 	m_HP = 5;
+	m_ShotWait = 0;
+	m_ShotWaitSet = 40;
+	m_TargetPos = Vector3(0, 0, 0);
 	m_AnimTime = 0;
 }
 
@@ -75,7 +80,7 @@ void CEnemy::Damage(int dmg) {
  * 更新
  *
  */
-void CEnemy::Update(){
+void CEnemy::Update(CEnemyShot* shot, int smax){
 	//非表示
 	if (!GetShow())
 	{
@@ -86,6 +91,34 @@ void CEnemy::Update(){
 	//アニメーション
 	m_Pos.y = InterpolationAnim(m_AnimTime, g_EnemyAnimPosY, 2);
 	m_Pos.z = InterpolationAnim(m_AnimTime, g_EnemyAnimPosZ, 5);
+	//プレイヤーと同じ高さまで移動したら
+	if (g_EnemyAnimPosY[1].Time < m_AnimTime)
+	{
+		//弾の発射
+		if (m_ShotWait <= 0)
+		{
+			CEnemyShot* newShot = CEnemyShot::FindAvailableShot(shot, smax);
+			if (newShot)
+			{
+				m_ShotWait = m_ShotWaitSet;
+				//
+				Vector3 direction = m_TargetPos - m_Pos;
+				//
+				float distance = CVector3Utilities::Length(direction);
+				//
+				if (distance > 0)
+				{
+					//方向を正規化
+					direction /= distance;
+					newShot->Fire(m_Pos, direction * 0.075f);
+				}
+			}
+		}
+		else
+		{
+			m_ShotWait--;
+		}
+	}
 	//アニメーションの終了で消去
 	if (g_EnemyAnimPosZ[4].Time < m_AnimTime)
 	{
